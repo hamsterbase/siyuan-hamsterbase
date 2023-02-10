@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { SyncPanel } from './component/sync-panel';
 import { Context } from './context';
 
 const App: React.FC = () => {
@@ -11,7 +12,7 @@ const App: React.FC = () => {
     });
   }, []);
 
-  return <div>{accessSiyuan ? 'true' : 'false'}</div>;
+  return <div>{accessSiyuan ? <SyncPanel></SyncPanel> : 'false'}</div>;
 };
 
 export default App;
