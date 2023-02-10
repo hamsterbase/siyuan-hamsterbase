@@ -1,18 +1,28 @@
 import React, { useContext, useEffect, useState } from 'react';
+import { SiyuanConfig } from './component/siyuan-config';
 import { SyncPanel } from './component/sync-panel';
 import { Context } from './context';
+import { useSiyuanState } from './store/status';
 
 const App: React.FC = () => {
-  const [accessSiyuan, setAccessSiyuan] = useState(false);
+  const siyuanState = useSiyuanState((o) => o);
   const ctx = useContext(Context)!;
 
   useEffect(() => {
     ctx.siyuanService.isAccessAble().then((res) => {
-      setAccessSiyuan(res);
+      siyuanState.setSiyuanAccessAble(res);
     });
   }, []);
 
-  return <div>{accessSiyuan ? <SyncPanel></SyncPanel> : 'false'}</div>;
+  return (
+    <div>
+      {siyuanState.siyuanAccessAble ? (
+        <SyncPanel></SyncPanel>
+      ) : (
+        <SiyuanConfig></SiyuanConfig>
+      )}
+    </div>
+  );
 };
 
 export default App;

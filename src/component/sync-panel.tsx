@@ -1,5 +1,7 @@
-import { Button, Form, Input } from 'antd';
-import React from 'react';
+import { Button, Form, Input, Select } from 'antd';
+import React, { useContext, useEffect, useState } from 'react';
+import { Context } from '../context';
+import { HamsterBaseConfig } from '../services/highlightsService';
 
 const layout = {
   labelCol: { span: 8 },
@@ -7,16 +9,33 @@ const layout = {
 };
 
 const SyncPanel = () => {
-  const [formValue, setValue] = React.useState<{
-    endpoint?: string;
-    apiToken?: string;
-    folder?: string;
-  }>({
-    folder: 'hamsterbase/highlights',
-  });
+  const ctx = useContext(Context)!;
+
+  const [notebooks, setNotebooks] = useState<{ id: string; name: string }[]>(
+    []
+  );
+
+  useEffect(() => {
+    ctx.siyuanService.listNotebooks().then((re) => {
+      setNotebooks(
+        re.notebooks.map((p) => ({
+          id: p.id,
+          name: p.name,
+        }))
+      );
+    });
+  }, []);
+
+  const [formValue, setValue] = React.useState<HamsterBaseConfig>(
+    ctx.highlightsService.config
+  );
+
+  useEffect(() => {
+    ctx.highlightsService.updateConfig(formValue);
+  }, [formValue]);
 
   const handleSync = () => {
-    console.log(formValue);
+    ctx.highlightsService.sync();
   };
 
   return (
@@ -39,6 +58,18 @@ const SyncPanel = () => {
         rules={[{ required: true }]}
       >
         <Input />
+      </Form.Item>
+      <Form.Item
+        name="notebook"
+        label="Siyuan Notebook"
+        rules={[{ required: true }]}
+      >
+        <Select
+          options={notebooks?.map((o) => ({
+            value: o.id,
+            label: o.name,
+          }))}
+        />
       </Form.Item>
       <Form.Item
         name="folder"
