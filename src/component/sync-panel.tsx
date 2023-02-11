@@ -15,6 +15,8 @@ const SyncPanel = () => {
     []
   );
 
+  const [loading, setLoading] = useState(false);
+
   useEffect(() => {
     ctx.siyuanService.listNotebooks().then((re) => {
       setNotebooks(
@@ -35,7 +37,10 @@ const SyncPanel = () => {
   }, [formValue]);
 
   const handleSync = () => {
-    ctx.highlightsService.sync();
+    setLoading(true);
+    ctx.highlightsService.sync().then(() => {
+      setLoading(false);
+    });
   };
 
   return (
@@ -79,7 +84,7 @@ const SyncPanel = () => {
         <Input />
       </Form.Item>
       <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
-        <Button type="primary" onClick={handleSync}>
+        <Button type="primary" onClick={handleSync} loading={loading}>
           Sync
         </Button>
       </Form.Item>
