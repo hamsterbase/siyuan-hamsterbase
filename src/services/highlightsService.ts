@@ -2,6 +2,8 @@ import { SiyuanService, siyuanService } from './siyuan';
 import { keys } from './../storage';
 import { HamsterBase, Webpage } from '@hamsterbase/sdk';
 import ejs from 'ejs';
+//@ts-expect-error
+import md5 from 'crypto-js/md5';
 
 export interface HamsterBaseConfig {
   endpoint: string;
@@ -67,10 +69,36 @@ export class HighlightsSyncService {
         const pageName =
           this.config.folder + '/' + webpage.title.replace(/\//g, '\\');
 
-        await this.siyuanService.createNote(
+        const { templateHash, hamsterbaseId, markdown } = render(webpage);
+
+        const pageId = await this.siyuanService.getIdByHPath('/' + pageName);
+        if (pageId !== null) {
+          const attrs = await this.siyuanService.getBlockAttrs(pageId);
+          if (
+            attrs[`custom-hamsterbaseId`] === hamsterbaseId &&
+            attrs[`custom-templateHash`] === templateHash
+          ) {
+            console.log('已存在，跳过');
+            continue;
+          }
+          await siyuanService.deletePage(pageId);
+        }
+        const id = await this.siyuanService.createNote(
           this.config.notebook,
           pageName,
-          ejs.compile(`## metadata
+          markdown
+        );
+        await this.siyuanService.setBlockAttrs(id, {
+          [`custom-hamsterbaseId`]: hamsterbaseId,
+          [`custom-templateHash`]: templateHash,
+        });
+      } catch (error) {}
+    }
+  }
+}
+
+function render(webpage: Webpage) {
+  const template = `## metadata
 title: <%= title %>     
 <% if (link) { %>
 link: <%= link %>
@@ -81,12 +109,16 @@ link: <%= link %>
 <% for (const highlight of highlights) { %>
 -  > <%= highlight.text %>
 <% if (highlight.note) { %>
-
     <%= highlight.note %>
 <% } %> 
-<% } %>`)(webpage)
-        );
-      } catch (error) {}
-    }
-  }
+<% } %>`;
+
+  const markdown = ejs.compile(template)(webpage);
+  const templateHash = md5(template).toString();
+
+  return {
+    templateHash,
+    markdown,
+    hamsterbaseId: webpage.id,
+  };
 }

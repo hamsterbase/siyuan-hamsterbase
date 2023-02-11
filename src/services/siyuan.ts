@@ -44,7 +44,45 @@ export class SiyuanService {
     });
   }
 
-  async createNote(notebook: string, path: string, markdown: string) {
+  async getBlockAttrs(blockId: string) {
+    return this.callApi<{
+      'custom-hamsterbaseId': string;
+      'custom-templateHash': string;
+    }>('api/attr/getBlockAttrs', {
+      id: blockId,
+    });
+  }
+
+  async setBlockAttrs(blockId: string, attrs: Record<string, string>) {
+    return this.callApi<{ id: string }>('api/attr/setBlockAttrs', {
+      id: blockId,
+      attrs,
+    });
+  }
+
+  async deletePage(blockId: string) {
+    return this.callApi<{ id: string }>('api/block/deleteBlock', {
+      id: blockId,
+    });
+  }
+
+  async getIdByHPath(hPath: string): Promise<string | null> {
+    const res = await this.callApi<{ id: string }[]>('api/query/sql', {
+      stmt: `SELECT id FROM blocks WHERE hpath=${JSON.stringify(
+        hPath
+      )} and type = "d"`,
+    });
+    if (Array.isArray(res) && res.length > 0) {
+      return res[0].id;
+    }
+    return null;
+  }
+
+  async createNote(
+    notebook: string,
+    path: string,
+    markdown: string
+  ): Promise<string> {
     return this.callApi('api/filetree/createDocWithMd', {
       notebook: notebook,
       path,
