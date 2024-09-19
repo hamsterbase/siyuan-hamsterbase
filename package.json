@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && zip -r package.zip dist",
+    "build": "tsc && vite build && zip -r package.zip dist && cp -r public/* ./",
     "preview": "vite preview"
   },
   "dependencies": {
@@ -24,5 +24,6 @@
     "@vitejs/plugin-react": "^3.1.0",
     "typescript": "^4.9.3",
     "vite": "^4.1.0"
-  }
+  },
+  "packageManager": "pnpm@9.8.0+sha512.8e4c3550fb500e808dbc30bb0ce4dd1eb614e30b1c55245f211591ec2cdf9c611cabd34e1364b42f564bd54b3945ed0f49d61d1bbf2ec9bd74b866fcdc723276"
 }
