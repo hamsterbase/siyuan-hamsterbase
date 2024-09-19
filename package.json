@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build && zip -rj package.zip dist && cp -r public/* ./",
+    "build": "tsc && vite build && cd dist && zip -r ../package.zip ./* && cd .. &&  cp -r public/* ./",
     "preview": "vite preview"
   },
   "dependencies": {
