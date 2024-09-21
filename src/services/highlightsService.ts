@@ -114,7 +114,7 @@ link: <%= link %>
 <% } %>`;
 
   const markdown = ejs.compile(template)(webpage);
-  const templateHash = md5(template).toString();
+  const templateHash = md5(markdown).toString();
 
   return {
     templateHash,
